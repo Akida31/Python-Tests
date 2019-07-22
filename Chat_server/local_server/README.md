@@ -5,7 +5,7 @@ A online feature will be added.
 
 Have a nice Day ^^
 
-##Installation
+## Installation
 Download global_install.py 
 and make_installer.py
 Execute first global_install.py and then make_installer.py
