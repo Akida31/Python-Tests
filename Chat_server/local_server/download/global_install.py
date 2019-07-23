@@ -25,6 +25,9 @@ def download(addr: str, name: str):
 
 if __name__ == "__main__":
     GLOBAL_PATH = input('Put in the path where the folder should be made:\n').replace('\\','/' )
+    while not os.path.exists(GLOBAL_PATH):
+        print('Path not available')
+        GLOBAL_PATH = input('Put in the path where the folder should be made:\n').replace('\\','/' )
     GLOBAL_PATH += '/' if not GLOBAL_PATH.endswith('/') else ''
     GITHUB_PATH = 'https://raw.githubusercontent.com/Akida31/Python-Tests/master/Chat_server/local_server/'
     make_dirs()
@@ -37,5 +40,9 @@ if __name__ == "__main__":
         f.write(requirements)
     scriptlist = get_file('scriptlist.txt')
     for script in scriptlist.split('\n'):
-        download(GITHUB_PATH + 'src/' + script, script)
+        download('src/' + script, script)
     print('SUCCESS!')
+    if 'y' in input('Do you want to make an installer for the clients now?'):
+        with open('make_installer.py', 'w') as f:
+            f.write(get_file('download/make_installer.py'))
+        os.system('python3 {a} || python {a}'.format(a='make_installer.py ' + GLOBAL_PATH))
