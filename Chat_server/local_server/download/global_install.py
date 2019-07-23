@@ -19,7 +19,6 @@ def get_file(file: str) -> str:
     return resp.content.decode().rstrip('\n')
 
 def download(addr: str, name: str):
-    print(get_file(addr))
     with open(GLOBAL_PATH + 'scripts/' + name, 'w') as f:
         f.write(get_file(addr).replace('\n', ''))
 
@@ -42,7 +41,7 @@ if __name__ == "__main__":
     for script in scriptlist.split('\n'):
         download('src/' + script, script)
     print('SUCCESS!')
-    if 'y' in input('Do you want to make an installer for the clients now?'):
-        with open('make_installer.py', 'w') as f:
+    if 'y' in input('Do you want to make an installer for the clients now? [y/n]\n'):
+        with open(GLOBAL_PATH + 'make_installer.py', 'w') as f:
             f.write(get_file('download/make_installer.py'))
-        os.system('python3 {a} || python {a}'.format(a='make_installer.py ' + GLOBAL_PATH))
+        os.system('python3 {a} || python {a}'.format(a=GLOBAL_PATH + 'make_installer.py ' + GLOBAL_PATH))
