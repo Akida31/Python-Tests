@@ -1,3 +1,6 @@
+from os.path import exists
+from platform import system
+from sys import argv
 with open('requirements.txt') as f:
     import_text = ''
     for line in f:
@@ -13,7 +16,10 @@ for folder in folders:
     text += '\'{}\','.format(folder)
 text = text[:-1] + ']\n[os.mkdir(\'fusion/\' + folder) for folder in folders]\n'
 text += 'STD_DIR = os.path.abspath(\'fusion/\').replace(\'\\\\\', \'/\') + \'/\'\nprint(STD_DIR)\n'
-inp = input('Please paste the global path:\n').replace('\\','/')
+inp = argv[1] if len(argv) > 1 else input('Please paste the global path:\n').replace('\\','/')
+while not exists(inp):
+    print('Path not available!')
+    inp = argv[1] if len(argv) > 1 else input('Please paste the global path:\n').replace('\\','/')
 inp += '/' if not inp.endswith('/') else ''
 text += 'GLOBAL_PATH = \'{}\'\n'.format(inp)
 text+= '''def copy(source, destination):
@@ -28,5 +34,9 @@ open(STD_DIR + 'chats/sent_messages.txt','w').close()
 os.system('python3 {s} || python {s}'.format(s=STD_DIR+'scripts/setup.py'))'''
 with open('install.py','w') as f:
     f.write(text)
-with open('install.sh', 'w') as f:
-    f.write('python3 install.py || python install.py')
+if system() == 'Windows':
+    with open('install.bat', 'w') as f:
+        f.write('python install.py')
+else:
+    with open('install.sh', 'w') as f:
+        f.write('python3 install.py || python install.py')
