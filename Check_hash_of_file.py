@@ -1,80 +1,82 @@
-import hashlib,os
+# hash checker by Akida
+# version 1.0.1
+# compare a given hash with the hash of a file
+# or generate the hash of a file
+
+import argparse
+import hashlib
+import os
 from pathlib import Path
 
-#cd to download
-#certutil -hashfile [filename] [method]
-#method can be md5 or sha256 etc.
 
-class Checker():
-    def input(self):
-        inputting = True
-        hasha = True
-        while inputting:
-            input1 = input('Put in the Path of your file: ')
-            input2 = input('Put in the algorithm: ')
-            vers = input2
-            input3 = input('Put in the hash: ')
-            if not vers in hashlib.algorithms_available:
-                print('ERROR: Algorithm can\'t be used')
-            elif not os.path.isfile(Path(input1)):
-                print('File not available')
-            elif len(input3)<5:
-                hasha = False
-                inputting = False
-            else:
-                inputting = False
+def get_file(file=None):
+    if file:
+        if os.path.isfile(Path(file)):
+            return file
+    while True:
+        file = input('Put in the Path of your file: ')
+        if os.path.isfile(Path(file)):
+            return file
+        files = []
+        for f in os.listdir():
+            if os.path.isfile(Path(f)):
+                files.append(f)
+        for f in files:
+            if f.startswith(file[:5]):
+                if 'y' in input('Do you mean "' + f + '"? [y/n] '):
+                    return f
+        print('File not available')
 
-        self.fname = input1
-        self.hasha = hasha
-        self.input3 = input3
-        self.vers = vers
-        self.check()
 
-    def check(self,*args):
-        getargs = False
-        if len(args)==0:
-            try:
-                fname = self.fname
-                getargs = True
-            except:
-                self.input()
-                getargs = True
-        else:
-            try:
-                fname = args[0]
-                vers = args[1]
-                hasha = args[2]
-                input3 = args[3]
-            except:
-                self.input()
-                getargs = True
-        if getargs:
-            fname = self.fname
-            hasha = self.hasha
-            vers = self.vers
-            input3 = self.input3
-        exec('self.hash1 = hashlib.' + str(vers) + '()')
-        with open(fname, "rb") as f:
-            #hash1.update(f.read())
-            #hashb = (hash1.hexdigest())
-            for chunk in iter(lambda: f.read(4096), b""):
-                self.hash1.update(chunk)
-                hashb = (self.hash1.hexdigest())
+def get_algo(algorithm=None):
+    if algorithm:
+        if algorithm in hashlib.algorithms_available:
+            return algorithm
+    while True:
+        algorithm = input('Put in the algorithm: ')
+        if algorithm in hashlib.algorithms_available:
+            return algorithm
+        print("ERROR: Algorithm can't be used")
 
-        print('\n\n\n\n')
-        if hasha:
-            if input3 == hashb:
-                print('FILE DOWNLOADED CORRECTLY\nHashes are same')
-                input()
-            elif input3 != hashb:
-                print('ERROR: HASHES ARE DIFFERENT')
-                print(input3)
-                print(hashb)
-                input()
-        else:
-            print('HASH:\n'+ hashb)
-            input()
+
+def get_info():
+    in_path = get_file(args.file)
+    in_algo = get_algo(args.algorithm)
+    if not args.hash:
+        hasha = input('Put in the hash or put in nothing to print the hash: ')
+    else:
+        hasha = args.hash
+    if len(hasha) < 5:
+        hasha = None
+    return in_path, in_algo, hasha
+
+
+def check(file, algorithm, hasha=None):
+    hash1 = hashlib.new(algorithm)
+    with open(file, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash1.update(chunk)
+        hashb = hash1.hexdigest()
+    if hasha:
+        return hasha == hashb
+    return hashb
+
 
 if __name__ == "__main__":
-    checker = Checker()
-    checker.input()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f', '--file', help='the file you of which you want to check')
+    parser.add_argument('-a', '--algorithm', help='the algorithm to check')
+    parser.add_argument('--hash', help='the hash of the file')
+    args = parser.parse_args()
+    print('\n')
+    path, algo, a_hash = get_info()
+    result = check(path, algo, a_hash)
+    print('\n\n')
+    if a_hash:
+        if result:
+            print('FILE DOWNLOADED CORRECTLY\nHashes are same')
+        else:
+            print('ERROR: HASHES ARE DIFFERENT')
+    else:
+        print('HASH:\n' + result)
+    input()
