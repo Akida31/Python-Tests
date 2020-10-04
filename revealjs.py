@@ -51,10 +51,10 @@ def create_client(socket_id):
     with open(f"{BASE_PATH}/index.html") as f:
         f = str(f.read())
         if "print-pdf" not in f:
-            f = f.replace("</head>", f"{replacements.PDF_EXPORT}</head>")
+            f = f.replace("</head>", f"{PDF_EXPORT}</head>")
         if "multiplex" not in f:
             f = f.replace(
-                "Reveal.initialize({", f"Reveal.initialize({{{replacements.MULTIPLEX}")
+                "Reveal.initialize({", f"Reveal.initialize({{{MULTIPLEX}")
         f = f.replace("/id/", socket_id)
         with open(f"{BASE_PATH}/index.html", "w") as g:
             g.write(f)
